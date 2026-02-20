@@ -9,6 +9,12 @@
 </h4>
 
 <p align="center">
+  <a href="#-disclaimer">❗ Disclaimer</a> •
+  <a href="#-features">✨ Features</a> •
+  <a href="https://github.com/ISpillMyDrink/OpenSuperClone/wiki/Script-Reference">📖 Script Reference</a>
+</p>
+
+<p align="center">
   <img src="./oscscript.png" alt="Size Limit CLI" width="738">
 </p>
 
