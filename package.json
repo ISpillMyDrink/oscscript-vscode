@@ -1,5 +1,5 @@
 {
-  "name": "oscscript-language-support",
+  "name": "oscscript-vscode",
   "displayName": "OSCScript Language Support",
   "description": "Language support for the OpenSuperClone scripting language",
   "version": "0.0.1",
