@@ -20,6 +20,9 @@ function createHoverProvider() {
 
           return new vscode.Hover(md, variableRange);
         }
+
+        // If token starts with '$', it is always a variable; do not fall back to command docs.
+        return undefined;
       }
 
       const commandRange = document.getWordRangeAtPosition(position, /[A-Za-z_][A-Za-z0-9_]*/);
