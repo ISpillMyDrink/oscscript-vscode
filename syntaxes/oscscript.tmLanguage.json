@@ -1,32 +1,102 @@
 {
-	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
-	"name": "OSCScript",
-	"patterns": [
-		{
-			"include": "#keywords"
-		},
-		{
-			"include": "#strings"
-		}
-	],
-	"repository": {
-		"keywords": {
-			"patterns": [{
-				"name": "keyword.control.oscscript",
-				"match": "\\b(if|while|for|return)\\b"
-			}]
-		},
-		"strings": {
-			"name": "string.quoted.double.oscscript",
-			"begin": "\"",
-			"end": "\"",
-			"patterns": [
-				{
-					"name": "constant.character.escape.oscscript",
-					"match": "\\\\."
-				}
-			]
-		}
-	},
-	"scopeName": "source.oscscript"
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "OSCScript",
+  "scopeName": "source.oscscript",
+  "patterns": [
+    {
+      "include": "#comments"
+    },
+    {
+      "include": "#strings"
+    },
+    {
+      "include": "#builtinVariables"
+    },
+    {
+      "include": "#variables"
+    },
+    {
+      "include": "#numbers"
+    },
+    {
+      "include": "#operators"
+    },
+    {
+      "include": "#controlKeywords"
+    },
+    {
+      "include": "#commands"
+    },
+    {
+      "include": "#storageLiterals"
+    }
+  ],
+  "repository": {
+    "comments": {
+      "name": "comment.line.number-sign.oscscript",
+      "match": "^\\s*#.*$"
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.oscscript",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            {
+              "name": "constant.character.escape.oscscript",
+              "match": "\\\\."
+            }
+          ]
+        },
+        {
+          "name": "string.quoted.single.oscscript",
+          "begin": "'",
+          "end": "'",
+          "patterns": [
+            {
+              "name": "constant.character.escape.oscscript",
+              "match": "\\\\."
+            }
+          ]
+        }
+      ]
+    },
+    "builtinVariables": {
+      "name": "support.variable.language.oscscript",
+      "match": "\\$(?i:error_level|io_sense_key|io_asc|io_ascq|io_status|io_masked_status|io_msg_status|io_sb_len_wr|io_host_status|io_driver_status|io_resid|io_duration|io_info|ata_return_error|ata_return_count|ata_return_lba|ata_return_device|ata_return_status|time|date|data_transferred|bus_master_status|direct_mode|ahci_mode)\\b"
+    },
+    "variables": {
+      "name": "variable.other.oscscript",
+      "match": "\\$[A-Za-z_][A-Za-z0-9_]*"
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.hex.oscscript",
+          "match": "\\b0[xX][0-9A-Fa-f]+\\b"
+        },
+        {
+          "name": "constant.numeric.integer.oscscript",
+          "match": "\\b-?\\d+\\b"
+        }
+      ]
+    },
+    "operators": {
+      "name": "keyword.operator.oscscript",
+      "match": "(<=|=>|!=|=|<|>|\\+|-|\\*|/|%|&|\\||\\^)"
+    },
+    "controlKeywords": {
+      "name": "keyword.control.oscscript",
+      "match": "\\b(?i:if|elseif|else|endif|while|done|break|subroutine|endsubroutine|gosub|returnsub|end)\\b"
+    },
+    "commands": {
+      "name": "support.function.command.oscscript",
+      "match": "\\b(?i:echo|seti|sets|exit|hex|decimal|printbuffer|stringtobuffer|clearbuffer|buffersize|writebuffer|readbuffer|direction|scsi6cmd|scsi10cmd|scsi12cmd|printsensebuffer|setreadpio|setwritepio|setreaddma|setwritedma|ata28cmd|ata48cmd|writelog|setbuffer|endbuffer|scratchpadsize|writescratchpad|readscratchpad|copyscratchpadtobuffer|copybuffertoscratchpad|printscratchpad|setscratchpad|endscratchpad|stringtoscratchpad|clearscratchpad|variablecheck|getfilesize|deletefile|callcommand|userinput|wordflipbuffer|wordflipscratchpad|getstatus|softreset|usleep|softtimeout|resettimeout|busytimeout|generaltimeout|gettime|reopendisk|include|loadscript|previousscript|upline)\\b"
+    },
+    "storageLiterals": {
+      "name": "constant.language.oscscript",
+      "match": "\\b(?i:buffer|scratchpad|sensebuffer|from|to|tofrom|none|b|w|dw|qw)\\b"
+    }
+  }
 }
