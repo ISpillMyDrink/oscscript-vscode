@@ -12,6 +12,10 @@
   <img src="./oscscript.png" alt="Size Limit CLI" width="738">
 </p>
 
+## ❗ Disclaimer
+
+Parts of this extension were written using the Codex LLM. Care was taken that all tooltips and logic do match the documentation as precisely as possible. Yet there may be be dragons.
+
 ## ✨ Features
 
 * Syntax highlighting
