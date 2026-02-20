@@ -20,5 +20,23 @@
     ["(", ")"],
     ["\"", "\""],
     ["'", "'"]
+  ],
+  "indentationRules": {
+    "increaseIndentPattern": "^\\s*(?:if|IF|while|WHILE|subroutine|SUBROUTINE|setbuffer|SETBUFFER|setscratchpad|SETSCRATCHPAD)\\b.*$",
+    "decreaseIndentPattern": "^\\s*(?:endif|ENDIF|else|ELSE|elseif|ELSEIF|done|DONE|endsubroutine|ENDSUBROUTINE|endbuffer|ENDBUFFER|endscratchpad|ENDSCRATCHPAD)\\b.*$"
+  },
+  "onEnterRules": [
+    {
+      "beforeText": "^\\s*(?:if|IF|while|WHILE|subroutine|SUBROUTINE|setbuffer|SETBUFFER|setscratchpad|SETSCRATCHPAD)\\b.*$",
+      "action": {
+        "indent": "indent"
+      }
+    },
+    {
+      "beforeText": "^\\s*(?:else|ELSE|elseif|ELSEIF)\\b.*$",
+      "action": {
+        "indent": "indent"
+      }
+    }
   ]
 }
