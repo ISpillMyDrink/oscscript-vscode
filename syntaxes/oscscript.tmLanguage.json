@@ -92,7 +92,7 @@
     },
     "commands": {
       "name": "support.function.command.oscscript",
-      "match": "\\b(?i:echo|seti|sets|exit|hex|decimal|printbuffer|stringtobuffer|clearbuffer|buffersize|writebuffer|readbuffer|direction|scsi6cmd|scsi10cmd|scsi12cmd|printsensebuffer|setreadpio|setwritepio|setreaddma|setwritedma|ata28cmd|ata48cmd|writelog|setbuffer|endbuffer|scratchpadsize|writescratchpad|readscratchpad|copyscratchpadtobuffer|copybuffertoscratchpad|printscratchpad|setscratchpad|endscratchpad|stringtoscratchpad|clearscratchpad|variablecheck|getfilesize|deletefile|callcommand|userinput|wordflipbuffer|wordflipscratchpad|getstatus|softreset|usleep|softtimeout|resettimeout|busytimeout|generaltimeout|gettime|reopendisk|include|loadscript|previousscript|upline)\\b"
+      "match": "\\b(?i:echo|seti|sets|exit|hex|decimal|printbuffer|stringtobuffer|clearbuffer|buffersize|writebuffer|readbuffer|direction|scsi6cmd|scsi10cmd|scsi12cmd|printsensebuffer|setreadpio|setwritepio|setreaddma|setwritedma|ata28cmd|ata48cmd|writelog|setbuffer|endbuffer|scratchpadsize|writescratchpad|readscratchpad|copyscratchpadtobuffer|copybuffertoscratchpad|printscratchpad|setscratchpad|endscratchpad|stringtoscratchpad|clearscratchpad|variablecheck|getfilesize|deletefile|callcommand|userinput|wordflipbuffer|wordflipscratchpad|getstatus|softreset|usleep|softtimeout|resettimeout|busytimeout|generaltimeout|hardtimeout|gettime|reopendisk|include|loadscript|previousscript|upline)\\b"
     },
     "storageLiterals": {
       "name": "constant.language.oscscript",
