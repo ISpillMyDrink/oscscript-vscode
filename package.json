@@ -1,0 +1,25 @@
+{
+  "name": "oscscript-language-support",
+  "displayName": "OSCScript Language Support",
+  "description": "Language support for the OpenSuperClone scripting language",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.109.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [{
+      "id": "oscscript",
+      "aliases": ["OSCScript", "oscscript"],
+      "extensions": [".osc .oscscript"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "oscscript",
+      "scopeName": "source.oscscript",
+      "path": "./syntaxes/oscscript.tmLanguage.json"
+    }]
+  }
+}
