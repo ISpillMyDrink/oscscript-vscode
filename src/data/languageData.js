@@ -175,6 +175,12 @@ const BUILTIN_FUNCTION_DOCS = {
   upline: 'Used for display purposes. Move the cursor up one line. This is useful for repeating data on the screen without scrolling.'
 };
 
+const SCRIPT_REFERENCE_BASE_URL = 'https://github.com/ISpillMyDrink/OpenSuperClone/wiki/Script-Reference';
+const BUILTIN_FUNCTION_LINKS = Object.fromEntries(
+  Object.keys(BUILTIN_FUNCTION_DOCS).map((name) => [name, `${SCRIPT_REFERENCE_BASE_URL}#${name}`])
+);
+const DEFAULT_VARIABLES_LINK = `${SCRIPT_REFERENCE_BASE_URL}#default-variables`;
+
 const BUILTIN_VARIABLES = new Set(Object.keys(BUILTIN_VARIABLE_DOCS));
 
 const BLOCK_OPENERS = {
@@ -191,7 +197,9 @@ module.exports = {
   BLOCK_CLOSERS,
   BLOCK_OPENERS,
   BUILTIN_FUNCTION_DOCS,
+  BUILTIN_FUNCTION_LINKS,
   BUILTIN_VARIABLE_DOCS,
+  DEFAULT_VARIABLES_LINK,
   BUILTIN_VARIABLES,
   COMMANDS,
   CONTROL_KEYWORD_DOCS,

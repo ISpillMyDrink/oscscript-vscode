@@ -2,7 +2,9 @@ const path = require('path');
 const vscode = require('vscode');
 const {
   BUILTIN_FUNCTION_DOCS,
+  BUILTIN_FUNCTION_LINKS,
   BUILTIN_VARIABLE_DOCS,
+  DEFAULT_VARIABLES_LINK,
   COMMANDS,
   CONTROL_KEYWORD_DOCS,
   CONTROL_KEYWORDS,
@@ -36,10 +38,13 @@ function getReplaceRange(document, position) {
     || new vscode.Range(position, position);
 }
 
-function markdownFor(label, doc) {
+function markdownFor(label, doc, linkUrl) {
   const md = new vscode.MarkdownString();
   md.appendMarkdown(`**${label}**\n\n`);
   md.appendMarkdown(doc);
+  if (linkUrl) {
+    md.appendMarkdown(`\n\n[Script Reference](${linkUrl})`);
+  }
   md.isTrusted = false;
   return md;
 }
@@ -52,7 +57,7 @@ function createCommandItem(command, range) {
 
   const doc = BUILTIN_FUNCTION_DOCS[command];
   if (doc) {
-    item.documentation = markdownFor(command, doc);
+    item.documentation = markdownFor(command, doc, BUILTIN_FUNCTION_LINKS[command]);
   }
 
   return item;
@@ -78,7 +83,7 @@ function createVariableItem(name, range) {
   item.range = range;
   item.insertText = label;
   item.detail = 'Built-in variable';
-  item.documentation = markdownFor(label, BUILTIN_VARIABLE_DOCS[name]);
+  item.documentation = markdownFor(label, BUILTIN_VARIABLE_DOCS[name], DEFAULT_VARIABLES_LINK);
   return item;
 }
 
