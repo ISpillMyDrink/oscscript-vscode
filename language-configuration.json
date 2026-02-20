@@ -38,5 +38,11 @@
         "indent": "indent"
       }
     }
-  ]
+  ],
+  "folding": {
+    "markers": {
+      "start": "^\\s*(?:(?:if|IF|while|WHILE|subroutine|SUBROUTINE|setbuffer|SETBUFFER|setscratchpad|SETSCRATCHPAD)\\b|#\\s*region\\b)",
+      "end": "^\\s*(?:(?:endif|ENDIF|done|DONE|endsubroutine|ENDSUBROUTINE|endbuffer|ENDBUFFER|endscratchpad|ENDSCRATCHPAD)\\b|#\\s*endregion\\b)"
+    }
+  }
 }
