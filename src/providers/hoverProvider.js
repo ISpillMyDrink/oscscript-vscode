@@ -3,6 +3,7 @@ const {
   BUILTIN_FUNCTION_DOCS,
   BUILTIN_FUNCTION_LINKS,
   BUILTIN_VARIABLE_DOCS,
+  CONSTANT_DOCS,
   DEFAULT_VARIABLES_LINK,
   CONTROL_KEYWORD_DOCS
 } = require('../data/languageData');
@@ -36,7 +37,8 @@ function createHoverProvider() {
       const command = document.getText(commandRange).toLowerCase();
       const commandDoc = BUILTIN_FUNCTION_DOCS[command];
       const keywordDoc = CONTROL_KEYWORD_DOCS[command];
-      const docText = commandDoc || keywordDoc;
+      const constantDoc = CONSTANT_DOCS[command];
+      const docText = commandDoc || keywordDoc || constantDoc;
       if (!docText) {
         return undefined;
       }

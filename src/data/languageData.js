@@ -116,6 +116,20 @@ const BUILTIN_VARIABLE_DOCS = {
   ahci_mode: 'Returns 1 if using AHCI, 0 if using passthrough mode.'
 };
 
+const CONSTANT_DOCS = {
+  buffer: 'Literal that refers to the main data buffer.',
+  scratchpad: 'Literal that refers to the scratchpad buffer.',
+  sensebuffer: 'Literal that refers to the SCSI sense buffer.',
+  from: 'Data transfer direction literal: from device to host.',
+  to: 'Data transfer direction literal: to device from host.',
+  tofrom: 'Data transfer direction literal: bidirectional transfer.',
+  none: 'Data transfer direction literal: no data transfer.',
+  b: 'Byte width literal (8-bit).',
+  w: 'Word width literal (16-bit).',
+  dw: 'Double-word width literal (32-bit).',
+  qw: 'Quad-word width literal (64-bit).'
+};
+
 const BUILTIN_FUNCTION_DOCS = {
   echo: 'Print to screen. Text can be output using quotes, either single or double. Quotes of the opposite type inside the original quotes will be output to the screen. Both string and number variables can be output. There must be a space between quotes and variables. Variables must be outside the quotes.',
   seti: 'Set a number variable. All variables must start with `$`. All number variables are integers of type long long (`-9,223,372,036,854,775,808` to `9,223,372,036,854,775,807`).',
@@ -199,6 +213,7 @@ module.exports = {
   BUILTIN_FUNCTION_DOCS,
   BUILTIN_FUNCTION_LINKS,
   BUILTIN_VARIABLE_DOCS,
+  CONSTANT_DOCS,
   DEFAULT_VARIABLES_LINK,
   BUILTIN_VARIABLES,
   COMMANDS,
