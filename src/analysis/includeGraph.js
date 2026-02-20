@@ -9,21 +9,11 @@ function resolveIncludePath(baseFilePath, rawTarget) {
     return null;
   }
 
-  const candidates = [];
-  if (path.isAbsolute(target)) {
-    candidates.push(target);
-  } else {
-    candidates.push(path.resolve(path.dirname(baseFilePath), target));
-  }
+  const resolved = path.isAbsolute(target)
+    ? target
+    : path.resolve(path.dirname(baseFilePath), target);
 
-  const withExt = candidates.flatMap((p) => {
-    if (path.extname(p)) {
-      return [p];
-    }
-    return [p, `${p}.osc`, `${p}.oscscript`];
-  });
-
-  return withExt.find((p) => fs.existsSync(p)) || null;
+  return fs.existsSync(resolved) ? resolved : null;
 }
 
 function collectSubroutines(rootFilePath) {
