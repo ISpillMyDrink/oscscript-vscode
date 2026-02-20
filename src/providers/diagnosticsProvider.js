@@ -70,6 +70,13 @@ function validateDocument(document, collection) {
     const firstToken = tokens[0];
     const lowerCommand = firstToken.toLowerCase();
     const cmdStart = raw.indexOf(firstToken);
+    const topBlock = blockStack[blockStack.length - 1];
+    const inDataEntryBlock =
+      topBlock && (topBlock.opener === 'setbuffer' || topBlock.opener === 'setscratchpad');
+
+    if (inDataEntryBlock && lowerCommand !== topBlock.expected) {
+      continue;
+    }
 
     const hasLower = /[a-z]/.test(firstToken);
     const hasUpper = /[A-Z]/.test(firstToken);
