@@ -10,7 +10,7 @@ const {
   CONTROL_KEYWORDS,
   INCLUDE_COMMANDS
 } = require('../data/languageData');
-const { collectSubroutines } = require('../analysis/includeGraph');
+const { collectSubroutines, collectVariables } = require('../analysis/includeGraph');
 const {
   findInlineCommentIndex,
   firstNonWhitespaceIndex,
@@ -84,6 +84,17 @@ function createVariableItem(name, range) {
   item.insertText = label;
   item.detail = 'Built-in variable';
   item.documentation = markdownFor(label, BUILTIN_VARIABLE_DOCS[name], DEFAULT_VARIABLES_LINK);
+  return item;
+}
+
+function createUserVariableItem(name, range) {
+  const label = `$${name}`;
+  const item = new vscode.CompletionItem(label, vscode.CompletionItemKind.Variable);
+  item.range = range;
+  item.insertText = label;
+  item.detail = 'User-defined variable';
+  item.documentation = new vscode.MarkdownString(`**${label}**\n\nVariable defined in this script.`);
+  item.documentation.isTrusted = false;
   return item;
 }
 
@@ -177,7 +188,18 @@ function createCompletionProvider() {
         : codeTokens.filter((token) => token.end <= position.character).length;
 
       if (currentText.startsWith('$')) {
-        return Object.keys(BUILTIN_VARIABLE_DOCS).map((name) => createVariableItem(name, range));
+        const userVariables = document.uri.fsPath
+          ? Array.from(collectVariables(document.uri.fsPath, document.getText()))
+          : [];
+        const builtinNames = new Set(Object.keys(BUILTIN_VARIABLE_DOCS));
+        const items = [
+          ...Array.from(builtinNames).sort().map((name) => createVariableItem(name, range)),
+          ...userVariables
+            .filter((name) => !builtinNames.has(name))
+            .sort()
+            .map((name) => createUserVariableItem(name, range))
+        ];
+        return items;
       }
 
       if (tokenIndex === 0) {

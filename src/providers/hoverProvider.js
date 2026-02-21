@@ -7,6 +7,7 @@ const {
   DEFAULT_VARIABLES_LINK,
   CONTROL_KEYWORD_DOCS
 } = require('../data/languageData');
+const { collectVariables } = require('../analysis/includeGraph');
 
 function createHoverProvider() {
   return vscode.languages.registerHoverProvider({ language: 'oscscript' }, {
@@ -23,6 +24,17 @@ function createHoverProvider() {
           md.isTrusted = false;
 
           return new vscode.Hover(md, variableRange);
+        }
+
+        if (document.uri.fsPath) {
+          const visibleVariables = collectVariables(document.uri.fsPath, document.getText());
+          if (visibleVariables.has(token)) {
+            const md = new vscode.MarkdownString();
+            md.appendMarkdown(`**\\$${token}**\n\n`);
+            md.appendMarkdown('User-defined variable.');
+            md.isTrusted = false;
+            return new vscode.Hover(md, variableRange);
+          }
         }
 
         // If token starts with '$', it is always a variable; do not fall back to command docs.
