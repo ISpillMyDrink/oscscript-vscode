@@ -7,7 +7,8 @@ const {
   DEFAULT_VARIABLES_LINK,
   CONTROL_KEYWORD_DOCS
 } = require('../data/languageData');
-const { collectVariables } = require('../analysis/includeGraph');
+const { buildSubroutineIndex, getSubroutineSymbolAtPosition } = require('../analysis/subroutineIndex');
+const { buildVariableIndex } = require('../analysis/variableIndex');
 
 function createHoverProvider() {
   return vscode.languages.registerHoverProvider({ language: 'oscscript' }, {
@@ -27,11 +28,23 @@ function createHoverProvider() {
         }
 
         if (document.uri.fsPath) {
-          const visibleVariables = collectVariables(document.uri.fsPath, document.getText());
-          if (visibleVariables.has(token)) {
+          const index = buildVariableIndex(document.uri.fsPath, document.getText());
+          const defs = index.definitions.get(token) || [];
+          if (defs.length > 0) {
+            const firstDef = defs
+              .slice()
+              .sort((a, b) => {
+                const pathCompare = a.uri.fsPath.localeCompare(b.uri.fsPath);
+                if (pathCompare !== 0) {
+                  return pathCompare;
+                }
+                return a.range.start.line - b.range.start.line;
+              })[0];
+            const rel = vscode.workspace.asRelativePath(firstDef.uri, false);
             const md = new vscode.MarkdownString();
             md.appendMarkdown(`**\\$${token}**\n\n`);
-            md.appendMarkdown('User-defined variable.');
+            md.appendMarkdown('User-defined variable.\n\n');
+            md.appendMarkdown(`Defined in \`${rel}:${firstDef.range.start.line + 1}\`.`);
             md.isTrusted = false;
             return new vscode.Hover(md, variableRange);
           }
@@ -44,6 +57,32 @@ function createHoverProvider() {
       const commandRange = document.getWordRangeAtPosition(position, /[A-Za-z_][A-Za-z0-9_]*/);
       if (!commandRange) {
         return undefined;
+      }
+
+      if (document.uri.fsPath) {
+        const subroutineSymbol = getSubroutineSymbolAtPosition(document, position);
+        if (subroutineSymbol) {
+          const index = buildSubroutineIndex(document.uri.fsPath, document.getText());
+          const defs = index.definitions.get(subroutineSymbol.name) || [];
+          if (defs.length > 0) {
+            const firstDef = defs
+              .slice()
+              .sort((a, b) => {
+                const pathCompare = a.uri.fsPath.localeCompare(b.uri.fsPath);
+                if (pathCompare !== 0) {
+                  return pathCompare;
+                }
+                return a.range.start.line - b.range.start.line;
+              })[0];
+            const rel = vscode.workspace.asRelativePath(firstDef.uri, false);
+            const md = new vscode.MarkdownString();
+            md.appendMarkdown(`**${subroutineSymbol.name}**\n\n`);
+            md.appendMarkdown('User-defined subroutine.\n\n');
+            md.appendMarkdown(`Defined in \`${rel}:${firstDef.range.start.line + 1}\`.`);
+            md.isTrusted = false;
+            return new vscode.Hover(md, subroutineSymbol.range);
+          }
+        }
       }
 
       const command = document.getText(commandRange).toLowerCase();
