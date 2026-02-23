@@ -7,7 +7,8 @@ const {
   CONTROL_KEYWORDS,
   INCLUDE_COMMANDS
 } = require('../data/languageData');
-const { collectSubroutines, resolveIncludePath } = require('../analysis/includeGraph');
+const { resolveIncludePath } = require('../analysis/includeGraph');
+const { getCachedSubroutines } = require('../analysis/workspaceAnalysisCache');
 const {
   findInlineCommentIndex,
   firstNonWhitespaceIndex,
@@ -209,7 +210,7 @@ function validateDocument(document, collection) {
         continue;
       }
 
-      for (const name of collectSubroutines(includePath)) {
+      for (const name of getCachedSubroutines(includePath)) {
         visibleSubroutines.add(name);
       }
     }
@@ -237,27 +238,65 @@ function validateDocument(document, collection) {
 
 function createDiagnosticsProvider(context) {
   const collection = vscode.languages.createDiagnosticCollection('oscscript');
+  const pendingByUri = new Map();
 
   const refresh = (doc) => validateDocument(doc, collection);
+  const scheduleRefresh = (doc, delayMs = 120) => {
+    if (doc.languageId !== 'oscscript') {
+      return;
+    }
+
+    const uriKey = doc.uri.toString();
+    const pending = pendingByUri.get(uriKey);
+    if (pending) {
+      clearTimeout(pending);
+    }
+
+    const timeout = setTimeout(() => {
+      pendingByUri.delete(uriKey);
+      refresh(doc);
+    }, delayMs);
+    pendingByUri.set(uriKey, timeout);
+  };
+  const cancelPending = (doc) => {
+    const uriKey = doc.uri.toString();
+    const pending = pendingByUri.get(uriKey);
+    if (pending) {
+      clearTimeout(pending);
+      pendingByUri.delete(uriKey);
+    }
+  };
 
   context.subscriptions.push(
     collection,
-    vscode.workspace.onDidOpenTextDocument(refresh),
-    vscode.workspace.onDidChangeTextDocument((event) => refresh(event.document)),
+    vscode.workspace.onDidOpenTextDocument((doc) => scheduleRefresh(doc, 0)),
+    vscode.workspace.onDidChangeTextDocument((event) => scheduleRefresh(event.document)),
     vscode.workspace.onDidSaveTextDocument((doc) => {
+      cancelPending(doc);
       refresh(doc);
       for (const openDoc of vscode.workspace.textDocuments) {
         if (openDoc.languageId === 'oscscript' && openDoc.uri.fsPath !== doc.uri.fsPath) {
-          refresh(openDoc);
+          scheduleRefresh(openDoc, 0);
         }
       }
     }),
-    vscode.workspace.onDidCloseTextDocument((doc) => collection.delete(doc.uri))
+    vscode.workspace.onDidCloseTextDocument((doc) => {
+      cancelPending(doc);
+      collection.delete(doc.uri);
+    }),
+    {
+      dispose() {
+        for (const timeout of pendingByUri.values()) {
+          clearTimeout(timeout);
+        }
+        pendingByUri.clear();
+      }
+    }
   );
 
   for (const doc of vscode.workspace.textDocuments) {
     if (doc.languageId === 'oscscript') {
-      refresh(doc);
+      scheduleRefresh(doc, 0);
     }
   }
 }

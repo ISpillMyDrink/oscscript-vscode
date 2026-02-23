@@ -10,7 +10,7 @@ const {
   CONTROL_KEYWORDS,
   INCLUDE_COMMANDS
 } = require('../data/languageData');
-const { collectSubroutines, collectVariables } = require('../analysis/includeGraph');
+const { getCachedSubroutines, getCachedVariables } = require('../analysis/workspaceAnalysisCache');
 const {
   findInlineCommentIndex,
   firstNonWhitespaceIndex,
@@ -160,7 +160,9 @@ async function createIncludeItems(document, range, prefix) {
 }
 
 function createSubroutineItems(document, range) {
-  const names = Array.from(collectSubroutines(document.uri.fsPath || '')).sort();
+  const names = Array.from(
+    getCachedSubroutines(document.uri.fsPath || '', document.getText(), document.version)
+  ).sort();
 
   return names.map((name) => {
     const item = new vscode.CompletionItem(name, vscode.CompletionItemKind.Method);
@@ -189,7 +191,7 @@ function createCompletionProvider() {
 
       if (currentText.startsWith('$')) {
         const userVariables = document.uri.fsPath
-          ? Array.from(collectVariables(document.uri.fsPath, document.getText()))
+          ? Array.from(getCachedVariables(document.uri.fsPath, document.getText(), document.version))
           : [];
         const builtinNames = new Set(Object.keys(BUILTIN_VARIABLE_DOCS));
         const items = [

@@ -7,8 +7,8 @@ const {
   DEFAULT_VARIABLES_LINK,
   CONTROL_KEYWORD_DOCS
 } = require('../data/languageData');
-const { buildSubroutineIndex, getSubroutineSymbolAtPosition } = require('../analysis/subroutineIndex');
-const { buildVariableIndex } = require('../analysis/variableIndex');
+const { getSubroutineSymbolAtPosition } = require('../analysis/subroutineIndex');
+const { getCachedSubroutineIndex, getCachedVariableIndex } = require('../analysis/workspaceAnalysisCache');
 
 function createHoverProvider() {
   return vscode.languages.registerHoverProvider({ language: 'oscscript' }, {
@@ -28,7 +28,7 @@ function createHoverProvider() {
         }
 
         if (document.uri.fsPath) {
-          const index = buildVariableIndex(document.uri.fsPath, document.getText());
+          const index = getCachedVariableIndex(document.uri.fsPath, document.getText(), document.version);
           const defs = index.definitions.get(token) || [];
           if (defs.length > 0) {
             const firstDef = defs
@@ -62,7 +62,7 @@ function createHoverProvider() {
       if (document.uri.fsPath) {
         const subroutineSymbol = getSubroutineSymbolAtPosition(document, position);
         if (subroutineSymbol) {
-          const index = buildSubroutineIndex(document.uri.fsPath, document.getText());
+          const index = getCachedSubroutineIndex(document.uri.fsPath, document.getText(), document.version);
           const defs = index.definitions.get(subroutineSymbol.name) || [];
           if (defs.length > 0) {
             const firstDef = defs

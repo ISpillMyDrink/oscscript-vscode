@@ -1,10 +1,10 @@
 const vscode = require('vscode');
 const { BUILTIN_VARIABLE_DOCS } = require('../data/languageData');
 const {
-  buildVariableIndex,
   getVariableSymbolAtPosition,
   normalizeVariableToken
 } = require('../analysis/variableIndex');
+const { getCachedVariableIndex } = require('../analysis/workspaceAnalysisCache');
 
 function createVariableNavigationProviders() {
   const selector = { language: 'oscscript' };
@@ -21,7 +21,7 @@ function createVariableNavigationProviders() {
         return undefined;
       }
 
-      const index = buildVariableIndex(document.uri.fsPath, document.getText());
+      const index = getCachedVariableIndex(document.uri.fsPath, document.getText(), document.version);
       const defs = index.definitions.get(symbol.name) || [];
       return defs.length > 0 ? defs : undefined;
     }
@@ -38,7 +38,7 @@ function createVariableNavigationProviders() {
         return undefined;
       }
 
-      const index = buildVariableIndex(document.uri.fsPath, document.getText());
+      const index = getCachedVariableIndex(document.uri.fsPath, document.getText(), document.version);
       const defs = index.definitions.get(symbol.name) || [];
       if (defs.length === 0) {
         return undefined;
@@ -65,7 +65,7 @@ function createVariableNavigationProviders() {
         throw new Error('Built-in variables cannot be renamed.');
       }
 
-      const index = buildVariableIndex(document.uri.fsPath, document.getText());
+      const index = getCachedVariableIndex(document.uri.fsPath, document.getText(), document.version);
       const defs = index.definitions.get(symbol.name) || [];
       if (defs.length === 0) {
         throw new Error('Only user-defined variables can be renamed.');
@@ -98,7 +98,7 @@ function createVariableNavigationProviders() {
         throw new Error('Cannot rename to a built-in variable name.');
       }
 
-      const index = buildVariableIndex(document.uri.fsPath, document.getText());
+      const index = getCachedVariableIndex(document.uri.fsPath, document.getText(), document.version);
       const defs = index.definitions.get(symbol.name) || [];
       if (defs.length === 0) {
         throw new Error('Only user-defined variables can be renamed.');

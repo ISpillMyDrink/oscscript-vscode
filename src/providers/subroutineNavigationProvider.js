@@ -1,9 +1,9 @@
 const vscode = require('vscode');
 const {
-  buildSubroutineIndex,
   getSubroutineSymbolAtPosition,
   normalizeSubroutineToken
 } = require('../analysis/subroutineIndex');
+const { getCachedSubroutineIndex } = require('../analysis/workspaceAnalysisCache');
 
 function createSubroutineNavigationProviders() {
   const selector = { language: 'oscscript' };
@@ -19,7 +19,7 @@ function createSubroutineNavigationProviders() {
         return undefined;
       }
 
-      const index = buildSubroutineIndex(document.uri.fsPath, document.getText());
+      const index = getCachedSubroutineIndex(document.uri.fsPath, document.getText(), document.version);
       const defs = index.definitions.get(symbol.name) || [];
       return defs.length > 0 ? defs : undefined;
     }
@@ -36,7 +36,7 @@ function createSubroutineNavigationProviders() {
         return undefined;
       }
 
-      const index = buildSubroutineIndex(document.uri.fsPath, document.getText());
+      const index = getCachedSubroutineIndex(document.uri.fsPath, document.getText(), document.version);
       const defs = index.definitions.get(symbol.name) || [];
       if (defs.length === 0) {
         return undefined;
@@ -59,7 +59,7 @@ function createSubroutineNavigationProviders() {
         return undefined;
       }
 
-      const index = buildSubroutineIndex(document.uri.fsPath, document.getText());
+      const index = getCachedSubroutineIndex(document.uri.fsPath, document.getText(), document.version);
       const defs = index.definitions.get(symbol.name) || [];
       if (defs.length === 0) {
         throw new Error('Only user-defined subroutines can be renamed.');
@@ -82,7 +82,7 @@ function createSubroutineNavigationProviders() {
         throw new Error('Subroutine name must match [A-Za-z_][A-Za-z0-9_]*.');
       }
 
-      const index = buildSubroutineIndex(document.uri.fsPath, document.getText());
+      const index = getCachedSubroutineIndex(document.uri.fsPath, document.getText(), document.version);
       const defs = index.definitions.get(symbol.name) || [];
       if (defs.length === 0) {
         throw new Error('Only user-defined subroutines can be renamed.');
