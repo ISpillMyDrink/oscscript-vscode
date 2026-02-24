@@ -1,6 +1,7 @@
 {
   "name": "oscscript-vscode",
   "displayName": "OSCScript Language Support",
+  "publisher": "ISpillMyDrink",
   "description": "Language support for the OpenSuperClone scripting language",
   "repository": {
     "type": "git",
