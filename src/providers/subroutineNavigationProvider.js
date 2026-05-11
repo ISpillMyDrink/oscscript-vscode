@@ -1,5 +1,6 @@
 const vscode = require('vscode');
 const {
+  buildConnectedSubroutineIndex,
   getSubroutineSymbolAtPosition,
   normalizeSubroutineToken
 } = require('../analysis/subroutineIndex');
@@ -9,7 +10,7 @@ function createSubroutineNavigationProviders() {
   const selector = { language: 'oscscript' };
 
   const definitionProvider = vscode.languages.registerDefinitionProvider(selector, {
-    provideDefinition(document, position) {
+    async provideDefinition(document, position) {
       if (!document.uri.fsPath) {
         return undefined;
       }
@@ -19,14 +20,14 @@ function createSubroutineNavigationProviders() {
         return undefined;
       }
 
-      const index = getCachedSubroutineIndex(document.uri.fsPath, document.getText(), document.version);
+      const index = await buildConnectedSubroutineIndex(document.uri.fsPath, document.getText());
       const defs = index.definitions.get(symbol.name) || [];
       return defs.length > 0 ? defs : undefined;
     }
   });
 
   const referenceProvider = vscode.languages.registerReferenceProvider(selector, {
-    provideReferences(document, position, context) {
+    async provideReferences(document, position, context) {
       if (!document.uri.fsPath) {
         return undefined;
       }
@@ -36,7 +37,7 @@ function createSubroutineNavigationProviders() {
         return undefined;
       }
 
-      const index = getCachedSubroutineIndex(document.uri.fsPath, document.getText(), document.version);
+      const index = await buildConnectedSubroutineIndex(document.uri.fsPath, document.getText());
       const defs = index.definitions.get(symbol.name) || [];
       if (defs.length === 0) {
         return undefined;
@@ -49,7 +50,7 @@ function createSubroutineNavigationProviders() {
   });
 
   const renameProvider = vscode.languages.registerRenameProvider(selector, {
-    prepareRename(document, position) {
+    async prepareRename(document, position) {
       if (!document.uri.fsPath) {
         return undefined;
       }
@@ -59,7 +60,7 @@ function createSubroutineNavigationProviders() {
         return undefined;
       }
 
-      const index = getCachedSubroutineIndex(document.uri.fsPath, document.getText(), document.version);
+      const index = await buildConnectedSubroutineIndex(document.uri.fsPath, document.getText());
       const defs = index.definitions.get(symbol.name) || [];
       if (defs.length === 0) {
         throw new Error('Only user-defined subroutines can be renamed.');
@@ -67,7 +68,7 @@ function createSubroutineNavigationProviders() {
 
       return symbol.range;
     },
-    provideRenameEdits(document, position, newName) {
+    async provideRenameEdits(document, position, newName) {
       if (!document.uri.fsPath) {
         return undefined;
       }
@@ -82,7 +83,7 @@ function createSubroutineNavigationProviders() {
         throw new Error('Subroutine name must match [A-Za-z_][A-Za-z0-9_]*.');
       }
 
-      const index = getCachedSubroutineIndex(document.uri.fsPath, document.getText(), document.version);
+      const index = await buildConnectedSubroutineIndex(document.uri.fsPath, document.getText());
       const defs = index.definitions.get(symbol.name) || [];
       if (defs.length === 0) {
         throw new Error('Only user-defined subroutines can be renamed.');

@@ -142,6 +142,111 @@ function buildSubroutineIndex(rootFilePath, rootFileText) {
   return { definitions, references };
 }
 
+async function buildConnectedSubroutineIndex(rootFilePath, rootFileText) {
+  const definitions = new Map();
+  const references = new Map();
+
+  if (!rootFilePath) {
+    return { definitions, references };
+  }
+
+  const openDocumentTexts = new Map();
+  for (const document of vscode.workspace.textDocuments) {
+    if (document.uri.fsPath) {
+      openDocumentTexts.set(document.uri.fsPath, document.getText());
+    }
+  }
+
+  const workspaceFiles = new Set([rootFilePath]);
+  const files = await vscode.workspace.findFiles('**/*.{osc,oscscript}', '**/{.git,node_modules}/**', 5000);
+  for (const uri of files) {
+    if (uri.fsPath) {
+      workspaceFiles.add(uri.fsPath);
+    }
+  }
+
+  const parsedCache = new Map();
+  const adjacency = new Map();
+
+  function getFileText(filePath) {
+    if (filePath === rootFilePath && typeof rootFileText === 'string') {
+      return rootFileText;
+    }
+
+    if (openDocumentTexts.has(filePath)) {
+      return openDocumentTexts.get(filePath);
+    }
+
+    return fs.existsSync(filePath) ? fs.readFileSync(filePath, 'utf8') : null;
+  }
+
+  function parse(filePath) {
+    if (!parsedCache.has(filePath)) {
+      parsedCache.set(filePath, parseSubroutineFile(filePath, getFileText(filePath)));
+    }
+
+    return parsedCache.get(filePath);
+  }
+
+  function addEdge(left, right) {
+    if (!adjacency.has(left)) {
+      adjacency.set(left, new Set());
+    }
+    adjacency.get(left).add(right);
+  }
+
+  for (const filePath of workspaceFiles) {
+    const parsed = parse(filePath);
+    for (const includeFile of parsed.includes) {
+      workspaceFiles.add(includeFile);
+      addEdge(filePath, includeFile);
+      addEdge(includeFile, filePath);
+    }
+  }
+
+  const connectedFiles = new Set();
+  const queue = [rootFilePath];
+
+  while (queue.length > 0) {
+    const filePath = queue.shift();
+    if (!filePath || connectedFiles.has(filePath)) {
+      continue;
+    }
+
+    connectedFiles.add(filePath);
+
+    const neighbors = adjacency.get(filePath);
+    if (!neighbors) {
+      continue;
+    }
+
+    for (const neighbor of neighbors) {
+      if (!connectedFiles.has(neighbor)) {
+        queue.push(neighbor);
+      }
+    }
+  }
+
+  const add = (map, key, value) => {
+    if (!map.has(key)) {
+      map.set(key, []);
+    }
+    map.get(key).push(value);
+  };
+
+  for (const filePath of connectedFiles) {
+    const parsed = parse(filePath);
+    for (const item of parsed.definitions) {
+      add(definitions, item.name, item.location);
+    }
+    for (const item of parsed.references) {
+      add(references, item.name, item.location);
+    }
+  }
+
+  return { definitions, references };
+}
+
 function getSubroutineSymbolAtPosition(document, position) {
   const line = document.lineAt(position.line).text;
   const tokens = getCodeTokens(line);
@@ -174,6 +279,7 @@ function getSubroutineSymbolAtPosition(document, position) {
 
 module.exports = {
   buildSubroutineIndex,
+  buildConnectedSubroutineIndex,
   getSubroutineSymbolAtPosition,
   normalizeSubroutineToken
 };

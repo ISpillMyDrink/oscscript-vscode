@@ -29,4 +29,5 @@ Parts of this extension were written using the Codex LLM. Care was taken that al
 * Tooltips for all built-in functions and variables
 * Auto-completion for built-in functions and variables
 * Jumping between subroutines and interconnected files
+* Refactoring variable names across related script files
 * Basic syntax error checking

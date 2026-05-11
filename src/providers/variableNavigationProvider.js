@@ -1,17 +1,17 @@
 const vscode = require('vscode');
 const { BUILTIN_VARIABLE_DOCS } = require('../data/languageData');
 const {
+  buildConnectedVariableIndex,
   getVariableSymbolAtPosition,
   normalizeVariableToken
 } = require('../analysis/variableIndex');
-const { getCachedVariableIndex } = require('../analysis/workspaceAnalysisCache');
 
 function createVariableNavigationProviders() {
   const selector = { language: 'oscscript' };
   const builtinVariables = new Set(Object.keys(BUILTIN_VARIABLE_DOCS));
 
   const definitionProvider = vscode.languages.registerDefinitionProvider(selector, {
-    provideDefinition(document, position) {
+    async provideDefinition(document, position) {
       if (!document.uri.fsPath) {
         return undefined;
       }
@@ -21,14 +21,14 @@ function createVariableNavigationProviders() {
         return undefined;
       }
 
-      const index = getCachedVariableIndex(document.uri.fsPath, document.getText(), document.version);
+      const index = await buildConnectedVariableIndex(document.uri.fsPath, document.getText());
       const defs = index.definitions.get(symbol.name) || [];
       return defs.length > 0 ? defs : undefined;
     }
   });
 
   const referenceProvider = vscode.languages.registerReferenceProvider(selector, {
-    provideReferences(document, position, context) {
+    async provideReferences(document, position, context) {
       if (!document.uri.fsPath) {
         return undefined;
       }
@@ -38,7 +38,7 @@ function createVariableNavigationProviders() {
         return undefined;
       }
 
-      const index = getCachedVariableIndex(document.uri.fsPath, document.getText(), document.version);
+      const index = await buildConnectedVariableIndex(document.uri.fsPath, document.getText());
       const defs = index.definitions.get(symbol.name) || [];
       if (defs.length === 0) {
         return undefined;
@@ -51,7 +51,7 @@ function createVariableNavigationProviders() {
   });
 
   const renameProvider = vscode.languages.registerRenameProvider(selector, {
-    prepareRename(document, position) {
+    async prepareRename(document, position) {
       if (!document.uri.fsPath) {
         return undefined;
       }
@@ -65,7 +65,7 @@ function createVariableNavigationProviders() {
         throw new Error('Built-in variables cannot be renamed.');
       }
 
-      const index = getCachedVariableIndex(document.uri.fsPath, document.getText(), document.version);
+      const index = await buildConnectedVariableIndex(document.uri.fsPath, document.getText());
       const defs = index.definitions.get(symbol.name) || [];
       if (defs.length === 0) {
         throw new Error('Only user-defined variables can be renamed.');
@@ -73,7 +73,7 @@ function createVariableNavigationProviders() {
 
       return symbol.range;
     },
-    provideRenameEdits(document, position, newName) {
+    async provideRenameEdits(document, position, newName) {
       if (!document.uri.fsPath) {
         return undefined;
       }
@@ -98,7 +98,7 @@ function createVariableNavigationProviders() {
         throw new Error('Cannot rename to a built-in variable name.');
       }
 
-      const index = getCachedVariableIndex(document.uri.fsPath, document.getText(), document.version);
+      const index = await buildConnectedVariableIndex(document.uri.fsPath, document.getText());
       const defs = index.definitions.get(symbol.name) || [];
       if (defs.length === 0) {
         throw new Error('Only user-defined variables can be renamed.');
